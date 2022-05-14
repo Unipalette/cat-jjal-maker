@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "Mongdol";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/naverfont_08@1.0/Mongdol.woff")
+    format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@import url("https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css");
+
+body {
+  font-family: "NanumSquare";
+  background: pink;
+}

@@ -6,10 +6,135 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>고양이 가라사대</title>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
 </head>
 <style>
+  @font-face {
+    font-family: "Mongdol";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/naverfont_08@1.0/Mongdol.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @import url("https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css");
+
   body {
+    font-family: "NanumSquare", 'Roboto', sans;
+    background-color: #FAFAFA;
     text-align: center;
+    font-weight: 100;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
+  .error-message {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 14px;
+    color: #f75c5c;
+    letter-spacing: -0.5px;
+    font-weight: 100;
+  }
+
+  .main-title {
+    margin-top: 130px;
+    font-weight: 900;
+    font-size: 36px;
+    color: #4B4B4B;
+    letter-spacing: -1.2px;
+  }
+
+  .title-des {
+    margin-top: 18px;
+    font-weight: 100;
+    font-size: 14px;
+    color: #4B4B4B;
+    letter-spacing: -0.5px;
+  }
+
+  form {
+    margin: 0 auto;
+    margin-top: 46px;
+    width: 345px;
+    height: 38px;
+    position: relative;
+  }
+
+  .input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: inherit;
+    height: inherit;
+    box-sizing: border-box;
+    border: 1px solid #F2F2F2;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 100;
+    padding: 0 20px;
+    outline: none;
+  }
+
+  .form-btn {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    font-size: 14px;
+    font-weight: 100;
+    color: #4B4B4B;
+    cursor: pointer;
+  }
+
+
+  .input::placeholder {
+    color: #BCBCBC;
+  }
+
+  .btn-des {
+    margin-top: 45px;
+    font-size: 14px;
+    font-weight: 100;
+    text-align: center;
+    color: #B7B7B7;
+  }
+
+  .main-card-wrap {
+    position: relative;
+    margin: 0 auto;
+    margin-top: 62px;
+    box-sizing: border-box;
+    border: 1px solid #F2F2F2;
+    background-color: #fff;
+    border-radius: 20px;
+    width: 262px;
+    height: 412px;
+    box-shadow: 10px 10px 30px rgba(100, 98, 98, 0.16);
+    overflow: hidden;
+  }
+
+  .main-card {
+    margin-top: 35px;
+    overflow: hidden;
+    width: inherit;
+    height: 288px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+
+  .main-card img {
+    height: 288px;
+    object-fit: cover;
   }
 
   .main-card button {
@@ -18,7 +143,38 @@
     bottom: 15px;
   }
 
+  .card-btn {
+    position: absolute;
+    bottom: 27px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+    text-align: center;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+  }
+
+  .card-des {
+    box-sizing: border-box;
+    padding: 16px 20px 22px 20px;
+    font-family: 'NanumMongDor';
+    text-align: left;
+    color: #4B4B4B;
+  }
+
+  .card-des p:first-child {
+    font-size: 16px;
+  }
+
+  .card-des p:last-child {
+    margin-top: 4px;
+    font-size: 22px;
+  }
+
   .favorites {
+    margin-top: 40px;
     list-style: none;
     display: flex;
     justify-content: center;
@@ -29,6 +185,7 @@
 
 <body>
   <div id="app"></div>
+
   <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
@@ -43,105 +200,154 @@
       },
     };
 
+    const fetchCat = async () => {
+      const OPEN_API_DOMAIN = "https://cataas.com";
+      const response = await fetch(`${OPEN_API_DOMAIN}/cat?json=true`);
+      const responseJson = await response.json();
+      return `${OPEN_API_DOMAIN}/${responseJson.url}`;
+    };
+
     const Title = (props) => {
       return (
-        <h1>
-          {props.children}
-        </h1>
+        <div>
+          <h1 className="main-title">{props.children}</h1>
+          <p className="title-des">메시지를 입력해서 나만의 고양이 카드를 만들어봐요!</p>
+        </div>
       )
-    }
-    const Form = ({ updateMainCat }) => {
-      const includesHangul = (text) => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/i.test(text);
+    };
+
+    const Form = ({ updateMainCat, updateMessage }) => {
       const [value, setValue] = React.useState('');
-      const [errorMessage, setErrorMessage] = React.useState('');
+      const [errorMessage, setErrorMessege] = React.useState('');
 
       function handleInputChange(e) {
-        let userValue = e.target.value;
-        setErrorMessage('');
-        if (includesHangul(userValue)) {
-          setErrorMessage('한글은 입력하실 수 없습니다.');
-          userValue = "";
-        }
-        setValue(userValue.toUpperCase());
+        const userValue = e.target.value;
+        setErrorMessege('');
+        setValue(userValue);
       }
 
-      function handleHeartSubmit(e) {
+      function handleFormSubmit(e) {
         e.preventDefault();
-        setErrorMessage('');
-
+        setErrorMessege('');
         if (value === '') {
-          setErrorMessage('빈 값으로 만들 수 없습니다.');
+          setErrorMessege('빈칸을 채워주세요.');
           return;
         }
-        updateMainCat();
+
+        updateMainCat(value);
+        updateMessage(value);
       }
       return (
-        <form onSubmit={handleHeartSubmit}>
-          <input value={value} onChange={handleInputChange} type="text" name="name" placeholder="영어 대사를 입력해주세요" />
-          <button type="submit">생성</button>
-          <p style={{ color: 'red' }}>{errorMessage}</p>
-        </form >
+        <form onSubmit={handleFormSubmit}>
+          <input className='input' onChange={handleInputChange} value={value} type="text" name="name" maxLength='16' placeholder="메시지를 입력해주세요" />
+          <p className="error-message">{errorMessage}</p>
+          <button className="form-btn" type="submit">완료</button>
+        </form>
       )
-
     }
-
     function CatItem(props) {
       return (
         <li>
-          <img src={props.img} style={{ width: '150px' }}></img>
+          <img src={props.img} style={{ width: '200px' }} />
         </li>
       )
     }
 
-    function Favorites({ favorites }) {
+    const Favorites = ({ favorites }) => {
+      if (favorites.length === 0) {
+        return (
+          <div className="btn-des">
+            🤍 사진 위 하트를 눌러 고양이 카드를 저장해봐요!
+          </div>
+        )
+      }
+
       return (
         <ul className="favorites">
-          {favorites.map(cat => <CatItem img={cat} key={cat} />)}
+          {favorites.map((catObj) => (
+            <MainCard
+              key={catObj.img + catObj.counter}
+              img={catObj.img}
+              counterTitle={catObj.counter}
+              message={catObj.message}
+            />
+          ))}
         </ul>
       )
     }
 
-    const MainCard = ({ img, onHandleHeartClick }) => {
+    const MainCard = ({ img, onHeartClick, alreadyFavorite, counterTitle, message }) => {
+      const heartIcon = alreadyFavorite ? "❤️" : "🤍";
       return (
-        <div className="main-card" >
-          <img src={img} alt="고양이" width="400" />
-          <button onClick={onHandleHeartClick}>🤍</button>
+        <div className="main-card-wrap">
+          <div className='main-card' style={{ backgroundImage: `url(${img})` }}>
+          </div>
+          {onHeartClick ?
+            (<button className="card-btn" onClick={onHeartClick}>
+              {heartIcon}
+            </button>) : (
+              null
+            )}
+          <div className="card-des">
+            <p>Cat {counterTitle} .</p>
+            <p>{message}</p>
+          </div>
         </div>
       )
-    }
+    };
 
-    function App() {
+    const App = () => {
+      const CAT = "https://cataas.com//cat/5e9970351b7a400011744233";
 
-      const CAT1 = "https://cataas.com/cat/60b73094e04e18001194a309/says/react";
-      const CAT2 = "https://cataas.com//cat/5e9970351b7a400011744233/says/inflearn";
-      const CAT3 = "https://cataas.com/cat/595f280b557291a9750ebf65/says/JavaScript";
+      const [counter, setCounter] = React.useState(() => {
+        return jsonLocalStorage.getItem('counter') || 0
+      });
+      const [mainCat, setMainCat] = React.useState('');
 
-      const [counter, setCounter] = React.useState(jsonLocalStorage.getItem('counter'))
-        ;
-      const [mainCatImg, setMainCatImg] = React.useState(CAT1);
-      const [favorites, setFavorites] = React.useState(jsonLocalStorage.getItem('favorites') || []);
+      const [favorites, setFavorites] = React.useState(() => {
+        return jsonLocalStorage.getItem("favorites") || []
+      });
+      const [message, setMessage] = React.useState('랜덤 고양이 카드');
 
-      function updateMainCat() {
-        setMainCatImg(CAT2);
-        const nextCounter = counter + 1;
-        setCounter(nextCounter);
-        jsonLocalStorage.setItem('counter', nextCounter);
+      async function setInitialCat() {
+        const newCat = await fetchCat('First Cat');
+        setMainCat(newCat);
+      }
+      React.useEffect(() => {
+        setInitialCat();
+      }, []);
+
+      async function updateMainCat(value) {
+        const newCat = await fetchCat(value);
+        setMainCat(newCat);
+        setCounter((prev) => {
+          const nextCounter = prev + 1;
+          localStorage.setItem('counter', nextCounter);
+          return nextCounter;
+        })
+      }
+      function updateMessage(value) {
+        setMessage(value);
       }
 
-      function onHandleHeartClick() {
-        const nextFavorites = [...favorites, mainCatImg]
+      function handleHeartClick() {
+        const catObj = { img: mainCat, counter: counter, message: message }
+        const nextFavorites = [...favorites, catObj];
         setFavorites(nextFavorites);
-        jsonLocalStorage.setItem('favorites', nextFavorites);
+        jsonLocalStorage.setItem("favorites", nextFavorites);
       }
-
+      const alreadyFavorite = favorites.find((favorite) => {
+        return favorite.img === mainCat && favorite.message === message;
+      });
+      const counterTitle = counter;
       return (
         <div>
-          <Title>{counter}번째 고양이 가라사대</Title>
-          <Form updateMainCat={updateMainCat} />
-          <MainCard img={mainCatImg} onHandleHeartClick={onHandleHeartClick} />
+          <Title>🐱 고양이 랜덤 카드 만들기 </Title >
+          <Form updateMainCat={updateMainCat} updateMessage={updateMessage} />
+          <MainCard img={mainCat} onHeartClick={handleHeartClick} alreadyFavorite={alreadyFavorite} counterTitle={counterTitle} message={message} />
           <Favorites favorites={favorites} />
         </div>
-      )
+      );
     }
     const 여기다그려 = document.querySelector('#app');
     ReactDOM.render(<App />, 여기다그려);
